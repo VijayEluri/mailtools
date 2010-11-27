@@ -45,29 +45,29 @@ public class GmailDownloader {
 
         OutputStream out = socket.getOutputStream();
         PrintWriter pw = new PrintWriter( out );
-        br.readLine();
 
-        pw.print( "A LOGIN " + username + " " + password + "\r\n" );
-        pw.flush();
-        br.readLine();
+        pw.print( "A LOGIN " + username + " " + password + "\r\n" ); pw.flush();
+        while (! br.readLine().startsWith( "A OK" ));
 
-        pw.print( "B SELECT \"[Gmail]/All Mail\"\r\n" );
-        pw.flush();
-        for (int i = 0; i < 3; i++) br.readLine();
-        String numMsgs = br.readLine();
-        for (int i = 0; i < 3; i++) br.readLine();
-        if (end < 0) {
-            StringTokenizer st = new StringTokenizer( numMsgs );
+        pw.print( "B SELECT \"[Gmail]/All Mail\"\r\n" ); pw.flush();
+        for (String s = br.readLine(); !s.startsWith( "B OK" ); s = br.readLine()) {
+            if (! s.endsWith( " EXISTS" )) {
+                continue;
+            }
+            StringTokenizer st = new StringTokenizer( s );
             st.nextToken();
-            end = Integer.parseInt( st.nextToken() );
-            System.out.println( "Found " + end + " messages" );
+            if (end < 0) {
+                end = Integer.parseInt( st.nextToken() );
+                System.out.println( "Found " + end + " messages" );
+            } else {
+                System.out.println( "Found " + st.nextToken() + " messages" );
+            }
         }
 
         System.out.println( "Downloading messages from [" + start + "] to [" + end + "]" );
         for (int i = start; i <= end; i++) {
             System.out.println( "Downloading message " + i );
-            pw.print( "ZZ FETCH " + i + " RFC822\r\n" );
-            pw.flush();
+            pw.print( "ZZ FETCH " + i + " RFC822\r\n" ); pw.flush();
             br.readLine();
             String fn = i + ".msg";
             while (fn.length() < 9) {
@@ -92,8 +92,7 @@ public class GmailDownloader {
             file.close();
         }
 
-        pw.print( "C LOGOUT\r\n" );
-        pw.flush();
+        pw.print( "C LOGOUT\r\n" ); pw.flush();
 
         in.close();
         out.close();
