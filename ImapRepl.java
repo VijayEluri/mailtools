@@ -11,10 +11,6 @@ import javax.net.*;
 import javax.net.ssl.*;
 
 public class ImapRepl extends ImapBase {
-    public ImapRepl( String host, int port ) {
-        super( host, port );
-    }
-
     public static void usage( PrintStream out ) {
         out.println( "Usage: java ImapRepl <host> [port]" );
         out.println( "       This will open a secure socket to the given host/port and prompt you for credentials." );
@@ -43,10 +39,10 @@ public class ImapRepl extends ImapBase {
         }
 
         Console console = System.console();
-        ImapRepl repl = new ImapRepl( host, port );
+        ImapRepl repl = new ImapRepl();
 
         System.out.println( "Connecting..." );
-        repl.connect();
+        repl.connect( host, port );
 
         System.out.println( "Logging in..." );
         if (repl.logIn( console )) {

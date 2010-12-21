@@ -11,9 +11,6 @@ import javax.net.*;
 import javax.net.ssl.*;
 
 public abstract class ImapBase {
-    private final String _host;
-    private final int _port;
-
     private Socket _socket;
     private InputStream _socketIn;
     private BufferedReader _imapServer;
@@ -21,14 +18,9 @@ public abstract class ImapBase {
     private PrintWriter _server;
     private int _commandCounter;
 
-    public ImapBase( String host, int port ) {
-        _host = host;
-        _port = port;
-    }
-
-    protected void connect() throws IOException {
+    protected void connect( String host, int port ) throws IOException {
         SocketFactory sf = SSLSocketFactory.getDefault();
-        _socket = sf.createSocket( _host, _port );
+        _socket = sf.createSocket( host, port );
         _socketIn = _socket.getInputStream();
         _imapServer = new BufferedReader( new InputStreamReader( _socketIn ) );
         _socketOut = _socket.getOutputStream();
@@ -54,7 +46,7 @@ public abstract class ImapBase {
         if (username == null || password == null) {
             return false;
         }
-        imapDump( "LOGIN " + username + " " + password );
+        imapDump( "LOGIN \"" + username + "\" \"" + password + "\"" );
         return true;
     }
 
@@ -67,6 +59,10 @@ public abstract class ImapBase {
         _server.print( ident + " " + command + "\r\n" );
         _server.flush();
         return ident;
+    }
+
+    protected void discardResponse( String ident ) throws IOException {
+        while (readUntilDone( ident ) != null);
     }
 
     protected String readUntilDone( String ident ) throws IOException {
