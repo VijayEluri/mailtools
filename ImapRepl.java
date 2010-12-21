@@ -43,19 +43,20 @@ public class ImapRepl extends ImapBase {
         }
 
         Console console = System.console();
-        String username = console.readLine( "Enter username: " );
-        String password = new String( console.readPassword( "Enter password: " ) );
+        ImapRepl repl = new ImapRepl( host, port );
 
         System.out.println( "Connecting..." );
-        ImapRepl repl = new ImapRepl( host, port );
         repl.connect();
+
         System.out.println( "Logging in..." );
-        repl.logIn( username, password );
-        System.out.println( "Ready for input..." );
-        for (String input = console.readLine( "> " ); input != null; input = console.readLine( "> " )) {
-            repl.imapDump( input );
+        if (repl.logIn( console )) {
+            System.out.println( "Ready for input..." );
+            for (String input = console.readLine( "> " ); input != null; input = console.readLine( "> " )) {
+                repl.imapDump( input );
+            }
+            repl.logOut();
         }
-        repl.logOut();
+
         repl.disconnect();
     }
 }

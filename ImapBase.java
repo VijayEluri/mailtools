@@ -48,19 +48,42 @@ public abstract class ImapBase {
         _socket = null;
     }
 
-    protected void logIn( String username, String password ) throws IOException {
+    protected boolean logIn( Console console ) throws IOException {
+        String username = console.readLine( "Enter username: " );
+        String password = new String( console.readPassword( "Enter password: " ) );
+        if (username == null || password == null) {
+            return false;
+        }
         imapDump( "LOGIN " + username + " " + password );
+        return true;
     }
 
     protected void logOut() throws IOException {
         imapDump( "LOGOUT" );
     }
 
-    protected void imapDump( String command ) throws IOException {
+    protected String imapSend( String command ) throws IOException {
         String ident = "A" + (_commandCounter++);
         _server.print( ident + " " + command + "\r\n" );
         _server.flush();
+        return ident;
+    }
 
+    protected String readUntilDone( String ident ) throws IOException {
+        String in = _imapServer.readLine();
+        if (in.startsWith( ident )) {
+            if (in.startsWith( ident + " OK" )) {
+                return null;
+            } else {
+                System.err.println( "Error: Received response [" + in + "]" );
+                throw new IOException( "Error response" );
+            }
+        }
+        return in;
+    }
+
+    protected void imapDump( String command ) throws IOException {
+        String ident = imapSend( command );
         String s;
         for (s = _imapServer.readLine(); ! s.startsWith( ident ); s = _imapServer.readLine()) {
             System.out.println( s );
