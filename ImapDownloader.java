@@ -50,12 +50,8 @@ public class ImapDownloader extends ImapBase {
         return true;
     }
 
-    protected String mailboxName() {
-        return "INBOX";
-    }
-
-    public void delete( int start, int end ) throws IOException {
-        if (! setMailbox( mailboxName(), start, end )) {
+    public void delete( String mailbox, int start, int end ) throws IOException {
+        if (! setMailbox( mailbox, start, end )) {
             return;
         }
 
@@ -63,8 +59,8 @@ public class ImapDownloader extends ImapBase {
         deleteMessages( _start, _end );
     }
 
-    public void download( int start, int end ) throws IOException {
-        if (! setMailbox( mailboxName(), start, end )) {
+    public void download( String mailbox, int start, int end ) throws IOException {
+        if (! setMailbox( mailbox, start, end )) {
             return;
         }
 
@@ -122,14 +118,14 @@ public class ImapDownloader extends ImapBase {
         System.out.println( "Deletion completed." );
     }
 
-    protected void run( String host, int port, boolean delete, int startIx, int endIx ) throws IOException {
+    protected void run( String host, int port, boolean delete, String mailbox, int startIx, int endIx ) throws IOException {
         System.out.println( "Connecting..." );
         connect( host, port );
         if (logIn( System.console() )) {
             if (delete) {
-                delete( startIx, endIx );
+                delete( mailbox, startIx, endIx );
             } else {
-                download( startIx, endIx );
+                download( mailbox, startIx, endIx );
             }
             logOut();
         }
@@ -137,13 +133,13 @@ public class ImapDownloader extends ImapBase {
     }
 
     public static void usage( PrintStream out ) {
-        out.println( "Usage: java ImapDownloader [-s <start>] [-e <end>] <host> [port]" );
+        out.println( "Usage: java ImapDownloader [-m <mailbox>] [-s <start>] [-e <end>] <host> [port]" );
         out.println( "           This will open a secure socket to the given host/port and prompt you for credentials." );
         out.println( "           The credentials will be used to authenticate the IMAP connection, and then all the" );
         out.println( "           messages in the specified range will be downloaded as RFC822-encoded messages and saved" );
         out.println( "           to plaintext files." );
         out.println();
-        out.println( "       java ImapDownloader -d [-s <start>] [-e <end>] <host> [port]" );
+        out.println( "       java ImapDownloader -d [-m <mailbox>] [-s <start>] [-e <end>] <host> [port]" );
         out.println( "           This will open a secure socket to the given host/port and prompt you for credentials." );
         out.println( "           The credentials will be used to authenticate the IMAP connection, and then all the" );
         out.println( "           messages in the specified range will be DELETED!" );
@@ -161,6 +157,7 @@ public class ImapDownloader extends ImapBase {
         String host = null;
         int port = 993;
         boolean delete = false;
+        String mailbox = "INBOX";
 
         try {
             for (int argIx = 0; argIx < args.length; argIx++) {
@@ -170,6 +167,8 @@ public class ImapDownloader extends ImapBase {
                     endIx = Integer.parseInt( args[ ++argIx ] );
                 } else if (args[ argIx ].equals( "-d" )) {
                     delete = true;
+                } else if (args[ argIx ].equals( "-m" )) {
+                    mailbox = args[ ++argIx ];
                 } else {
                     host = args[ argIx++ ];
                     if (argIx < args.length) {
@@ -186,6 +185,6 @@ public class ImapDownloader extends ImapBase {
         }
 
         ImapDownloader downloader = new ImapDownloader();
-        downloader.run( host, port, delete, startIx, endIx );
+        downloader.run( host, port, delete, mailbox, startIx, endIx );
     }
 }
