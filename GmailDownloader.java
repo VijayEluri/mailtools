@@ -12,7 +12,7 @@ import javax.net.ssl.*;
 
 public class GmailDownloader extends ImapDownloader {
     protected void run( boolean delete, int startIx, int endIx ) throws IOException {
-        super.run( "imap.gmail.com", 993, delete, "[Gmail]/All Mail", startIx, endIx );
+        super.run( "imap.gmail.com", 993, delete, "\"[Gmail]/All Mail\"", startIx, endIx );
     }
 
     @Override protected void deleteMessages( int start, int end ) throws IOException {
