@@ -67,13 +67,8 @@ public abstract class ImapBase {
 
     protected String readUntilDone( String ident ) throws IOException {
         String in = _imapServer.readLine();
-        if (in.startsWith( ident )) {
-            if (in.startsWith( ident + " OK" )) {
-                return null;
-            } else {
-                System.err.println( "Error: Received response [" + in + "]" );
-                throw new IOException( "Error response" );
-            }
+        if (in.startsWith( ident + " OK")) {
+            return null;
         }
         return in;
     }
