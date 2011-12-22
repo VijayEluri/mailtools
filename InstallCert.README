@@ -1,0 +1,9 @@
+To download a cert, do:
+
+javac InstallCert.java
+java InstallCert <hostname>:<port>      # e.g. java InstallCert mail.dreamhost.com:993
+
+This will save the cert in a file called jssecacerts.
+You can then use this cert as the trust store by running
+
+java -Djavax.net.ssl.trustStore=jssecacerts ImapDownloader <hostname> <port>
