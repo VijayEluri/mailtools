@@ -41,9 +41,19 @@ public abstract class ImapBase {
     }
 
     protected boolean logIn( Console console ) throws IOException {
-        String username = console.readLine( "Enter username: " );
-        String password = new String( console.readPassword( "Enter password: " ) );
-        if (username == null || password == null) {
+        String username = null;
+        String password = null;
+        if (console != null) {
+            username = console.readLine( "Enter username: " );
+            password = new String( console.readPassword( "Enter password: " ) );
+        } else {
+            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+            System.out.print( "Enter username: " );
+            username = br.readLine();
+            System.out.print( "Enter password: " );
+            password = br.readLine();
+        }
+        if (username == null || password == null || username.length() == 0) {
             return false;
         }
         imapDump( "LOGIN \"" + username + "\" \"" + password + "\"" );
