@@ -77,7 +77,7 @@ public abstract class ImapBase {
 
     protected String readUntilDone( String ident ) throws IOException {
         String in = _imapServer.readLine();
-        if (in.startsWith( ident + " OK")) {
+        if (in.startsWith( ident + " OK") || in.startsWith( ident + " NO" ) || in.startsWith( ident + " BAD" )) {
             return null;
         }
         return in;
