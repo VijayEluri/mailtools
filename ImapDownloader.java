@@ -93,6 +93,13 @@ public class ImapDownloader extends ImapBase {
                         file.println( msgLine.substring( 0, msgLine.length() - 1 ) );
                     }
                     break outer;
+                } else if (nextLine.startsWith( "* " + fetchIdent + " FETCH" )) {
+                    // There might be an extra line with flags stuff, throw it out
+                    if (msgLine.length() > 1) {
+                        file.println( msgLine.substring( 0, msgLine.length() - 1 ) );
+                    }
+                    discardResponse( fetchIdent );
+                    break outer;
                 }
                 file.println( msgLine );
                 msgLine = nextLine;
